@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-Br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+    * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 28px;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            margin: auto;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        form:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        form label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+
+        form input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 20px;
+            border: 1px solid #dcdde1;
+            border-radius: 10px;
+            font-size: 16px;
+            color: #333;
+            background-color: #fafafa;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        form input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+            outline: none;
+            background-color: #f0faff;
+        }
+
+        form button {
+            width: 100%;
+            padding: 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        form button:hover {
+            background-color: #2980b9;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .form-section {
+            flex: 1;
+            min-width: 280px;
+        }
+
+        @media (max-width: 800px) {
+            .form-container {
+                flex-direction: column;
+            }
+
+            form {
+                width: 100%;
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            form {
+                padding: 20px;
+            }
+
+            form input, form button {
+                padding: 12px;
+                font-size: 14px;
+            }
+        }
+        </style>
+        </head>
+       <!--In this add employee code it performs a cookie search and checks to see if there is a code 
+        equal to one already in the employee list table -->
+        <body>
+                <div class="form-container">
+                    <div class="form-section">
+                        
+                        <form action="{% url 'adicionar_funcionario' %}" method="post">
+                {% csrf_token %}
+
+                <label for="codigoPesquisa">Pesquisa</label>
+                <input type="number" id="codigoPesquisa" name="codigoPesquisa" placeholder="Digite o código do Funcionario">
+                <button type="button" onclick="pesquisarFuncionario()">Pesquisar Funcionario</button><br><br>
+            <label for="codigo">Código: </lanel>
+            <input type="number" id="codigo" name="codigo" required><br>
+
+            <label for="nome">Nome: </label>
+            <input type="text" id="nome" name="nome" required><br>
+
+            <label for="valorHora">Valor Hora (R$): </label>
+            <input type="number" id="valorHora" name="valorHora" required><br>
+
+            <label for="horasTrabalhadas">Horas Trabalhadas </label>
+            <input type="number" id="horasTrabalhadas" name="horasTrabalhadas" required><br>
+
+            <button type="submit">Adicionar Funcionario</button>
+
+            </form>
+                    </div>
+                </div>
+                <script>
+                    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Checks if this cookie starts with the token name
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+    
+                    function pesquisarFuncionario(){
+                        const codigo = document.getElementById('codigoPesquisa').value;
+                        if(codigo){
+                            fetch(`/pesquisar/?codigo=${codigo}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if(data){
+                                        document.getElementById('codigo').value = data.codigo;
+                                        document.getElementById('nome').value = data.nome;
+                                        document.getElementById('valorHora').value = data.valor_hora;
+                                        document.getElementById('horasTrabalhadas').value = data.horas_trabalhadas;
+                                    }else{
+                                        alert('Fúncionario não encontrado.');
+                                    }
+
+                                })
+                                .catch(error => console.error('Erro ao buscar fúncionario:', error));
+                        }else{
+                            alert('Por favor, insira um código válido.')
+                        }
+                    }
+                </script>
+        </body>
+</html>
